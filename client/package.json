@@ -20,7 +20,7 @@
     "latest-version": "^6.0.0",
     "react": "^17.0.2",
     "react-bootstrap": "^2.0.2",
-    "react-calendar": "^4.6.1",
+    "react-calendar": "^4.7.0",
     "react-dom": "^17.0.2",
     "react-loader-spinner": "^5.4.5",
     "react-redux": "^8.1.3",
