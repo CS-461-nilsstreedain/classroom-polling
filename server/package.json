@@ -1,7 +1,7 @@
 {
 	"dependencies": {
 		"@trycourier/courier": "^5.7.0",
-		"bcrypt": "^5.1.0",
+		"bcrypt": "^5.1.1",
 		"body-parser": "^1.20.2",
 		"caniuse-lite": "^1.0.30001565",
 		"cookie": "^0.6.0",
