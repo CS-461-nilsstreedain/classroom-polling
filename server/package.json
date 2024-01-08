@@ -13,7 +13,7 @@
 		"jsonwebtoken": "^9.0.0",
 		"moment": "^2.29.4",
 		"morgan": "^1.10.0",
-		"mysql2": "^2.3.3",
+		"mysql2": "^3.7.0",
 		"npx": "^10.2.2",
 		"sequelize": "^6.35.0",
 		"sequelize-cli": "^6.5.2",
