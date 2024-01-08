@@ -3,7 +3,7 @@
 		"@trycourier/courier": "^5.7.0",
 		"bcrypt": "^5.1.0",
 		"body-parser": "^1.20.2",
-		"caniuse-lite": "^1.0.30001565",
+		"caniuse-lite": "^1.0.30001576",
 		"cookie": "^0.6.0",
 		"cookie-parser": "^1.4.6",
 		"cors": "^2.8.5",
