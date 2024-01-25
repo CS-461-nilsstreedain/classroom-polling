@@ -12,33 +12,33 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 	const courseId = parseInt(req.params["course_id"]);
 	const lectureId = parseInt(req.params["lecture_id"]);
 	const questionId = parseInt(req.params["question_id"]);
-	const enrollmentStudent = await db.Enrollment.findOne({
-		// check to make sure the user is a student for the specified course
-		where: { role: "student", userId: user.id },
-		include: [
-			{
-				model: db.Section,
-				required: true,
-				where: { courseId: courseId },
-			},
-		],
-	});
-	if (!enrollmentStudent)
-		return res.status(403).send({
-			error: `Only a student in the course can submit a response to the question`,
-		});
-	if (!req.body.answers || !(Object.keys(req.body.answers).length > 1))
-		// request must have an answer and it must have at least two options to pick from
-		return res.status(400).send({
-			error: `Submission must be present and must contain at least two options`,
-		});
 
 	// for now, only multiple choice and multiple answer available
 	try {
+		const enrollmentStudent = await db.Enrollment.findOne({
+			// check to make sure the user is a student for the specified course
+			where: { role: "student", userId: user.id },
+			include: [
+				{
+					model: db.Section,
+					required: true,
+					where: { courseId: courseId },
+				},
+			],
+		});
 		const questionInLecture = await questionService.getQuestionInLecture(
 			questionId,
 			lectureId
 		);
+		if (!enrollmentStudent)
+			return res.status(403).send({
+				error: `Only a student in the course can submit a response to the question`,
+			});
+		if (!req.body.answers || !(Object.keys(req.body.answers).length > 1))
+			// request must have an answer and it must have at least two options to pick from
+			return res.status(400).send({
+				error: `Submission must be present and must contain at least two options`,
+			});
 		if (!questionInLecture)
 			return res.status(404).send({
 				error: `No question in lecture found for the given lecture and question`,
