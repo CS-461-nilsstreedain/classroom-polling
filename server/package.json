@@ -30,7 +30,7 @@
 		"nodemon": "^2.0.20"
 	},
 	"scripts": {
-		"test": "NODE_ENV=test jest --runInBand",
+		"test": "NODE_ENV=test jest --runInBand --silent=false",
 		"start": "node app/server.js --NODE_ENV=production",
 		"start:dev": "nodemon app/server.js --NODE_ENV=development",
 		"seed": "npx sequelize-cli db:seed:all",
