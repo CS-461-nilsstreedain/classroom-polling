@@ -66,25 +66,6 @@ module.exports = (sequelize, DataTypes) => {
 					},
 				},
 			},
-			// add grade score to enrollments
-			grade: {
-				type: DataTypes.DOUBLE,
-				allowNull: true,
-				// references: {
-				// 	model: "Responses",
-				// 	key: "score",
-				// },
-				// validate: {
-				// 	min: {
-				// 		args: [0],
-				// 		msg: "score cannot be less than 0",
-				// 	},
-				// 	max: {
-				// 		args: [1],
-				// 		msg: "score cannot be more than 1",
-				// 	},
-				// },
-			},
 			sectionId: {
 				type: DataTypes.INTEGER,
 				references: {
