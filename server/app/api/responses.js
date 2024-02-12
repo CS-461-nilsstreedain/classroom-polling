@@ -12,6 +12,14 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 	const courseId = parseInt(req.params["course_id"]);
 	const lectureId = parseInt(req.params["lecture_id"]);
 	const questionId = parseInt(req.params["question_id"]);
+	const points = parseInt(req.params["points"]) || 0;
+	const totalPoints = parseInt(req.params["total_points"]) || 0;
+	// code to check if the req params are valid
+	if (!user || !courseId || !lectureId || !questionId) {
+		return res.status(400).send({
+			error: `Invalid request parameters`,
+		});
+	}
 
 	// for now, only multiple choice and multiple answer available
 	try {
@@ -59,6 +67,13 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 			score: questionScore,
 			submission: req.body.answers,
 		};
+
+		// code to verify points and totalPoints are valid
+		if (points && totalPoints) {
+			responseToInsert.points = points;
+			responseToInsert.totalPoints = totalPoints;
+		}
+
 		const response = await db.Response.create(
 			responseService.extractResponseInsertFields(responseToInsert)
 		);
@@ -70,6 +85,7 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 	}
 });
 
+// this route isn't even implemented in the frontend
 // student is resubmitting their answer to a question
 router.put(
 	"/:response_id",
@@ -93,6 +109,8 @@ router.put(
 		});
 
 		// check to make sure response exists and belongs to the user making the request
+		// this is timing out because it's not finding the response
+		// rewrite the query to set a timeout if a response is not found
 		const oldResponse = await db.Response.findOne({
 			where: { id: responseId },
 			include: [
@@ -103,6 +121,7 @@ router.put(
 				},
 			],
 		});
+		// SELECT * FROM Responses WHERE id = ${responseId} AND Enrollment.userId = ${user.id}, { model: db.Response };
 
 		if (enrollmentStudent) {
 			// for now, only multiple choice and multiple answer available
