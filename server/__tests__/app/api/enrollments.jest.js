@@ -39,8 +39,7 @@ describe('/enrollments and /enrollments/enrollment_id endpoints', () => {
             sub: user.id
         })
         const userSession = await generateUserSession(user)
-        userXsrfCookie = userSession.csrfToken
-        userCookies = [`_myclassroom_session=${userToken}`]
+        userCookies = [`_myclassroom_session=${userToken}`, `xsrf-token=${userSession.csrfToken}`]
         
 
         user2 = await db.User.create({
@@ -53,8 +52,7 @@ describe('/enrollments and /enrollments/enrollment_id endpoints', () => {
             sub: user2.id
         })
         const user2Session = await generateUserSession(user2)
-        user2XsrfCookie = user2Session.csrfToken
-        user2Cookies = [`_myclassroom_session=${user2Token}`]
+        user2Cookies = [`_myclassroom_session=${user2Token}`, `xsrf-token=${user2Session.csrfToken}`]
 
         user3 = await db.User.create({
             firstName: 'TheUser',
@@ -66,8 +64,7 @@ describe('/enrollments and /enrollments/enrollment_id endpoints', () => {
             sub: user3.id
         })
         const user3Session = await generateUserSession(user3)
-        user3XsrfCookie = user3Session.csrfToken
-        user3Cookies = [`_myclassroom_session=${user3Token}`]
+        user3Cookies = [`_myclassroom_session=${user3Token}`, `xsrf-token=${user3Session.csrfToken}`]
 
         user4 = await db.User.create({
             firstName: 'HelloImauser',
@@ -79,8 +76,7 @@ describe('/enrollments and /enrollments/enrollment_id endpoints', () => {
             sub: user4.id
         })
         const user4Session = await generateUserSession(user4)
-        user4XsrfCookie = user4Session.csrfToken
-        user4Cookies = [`_myclassroom_session=${user4Token}`]
+        user4Cookies = [`_myclassroom_session=${user4Token}`, `xsrf-token=${user4Session.csrfToken}`]
 
         course = await db.Course.create({
             name: 'Testing Things 101',
@@ -131,7 +127,7 @@ describe('/enrollments and /enrollments/enrollment_id endpoints', () => {
     })
 
     it('should respond with 200 when a teacher gets their roster', async () => {
-        const resp = await request(app).get(`/courses/${course.id}/enrollments`).set('Cookie', userCookies).set('X-XSRF-TOKEN', userXsrfCookie)
+        const resp = await request(app).get(`/courses/${course.id}/enrollments`).set('Cookie', userCookies)
         expect(resp.statusCode).toEqual(200)
         expect(resp.body.enrollments.length).toEqual(2)
         expect(resp.body.enrollments[0].userId).toEqual(user2.id)
@@ -145,14 +141,14 @@ describe('/enrollments and /enrollments/enrollment_id endpoints', () => {
     })
 
     it('should respond with 403 when a student tries to get the roster', async () => { 
-        const resp = await request(app).get(`/courses/${course.id}/enrollments`).set('Cookie', user2Cookies).set('X-XSRF-TOKEN', user2XsrfCookie)
+        const resp = await request(app).get(`/courses/${course.id}/enrollments`).set('Cookie', user2Cookies)
         expect(resp.statusCode).toEqual(403)
     })
 
     it('should respond with 200 when a teacher changes a student section', async () => {
         const resp = await request(app).put(`/courses/${course.id}/enrollments/${enrollment3.id}`).send({
             sectionId: section.id
-        }).set('Cookie', userCookies).set('X-XSRF-TOKEN', userXsrfCookie)
+        }).set('Cookie', userCookies)
         expect(resp.statusCode).toEqual(200)
         expect(resp.body.enrollment.userId).toEqual(user3.id)
         expect(resp.body.enrollment.role).toEqual('student')
@@ -162,33 +158,33 @@ describe('/enrollments and /enrollments/enrollment_id endpoints', () => {
     it('should respond with 403 when a student tries to change section', async () => {
         const resp = await request(app).put(`/courses/${course.id}/enrollments/${enrollment3.id}`).send({
             sectionId: section2.id
-        }).set('Cookie', user3Cookies).set('X-XSRF-TOKEN', user3XsrfCookie)
+        }).set('Cookie', user3Cookies)
         expect(resp.statusCode).toEqual(403)
     })
 
     it('should respond with 400 when a request does not contain a section number to switch to', async () => {
         const resp = await request(app).put(`/courses/${course.id}/enrollments/${enrollment3.id}`).send({
-        }).set('Cookie', userCookies).set('X-XSRF-TOKEN', userXsrfCookie)
+        }).set('Cookie', userCookies)
         expect(resp.statusCode).toEqual(400)
     })
 
     it('should respond with 400 when the section number to switch to does not exist', async () => {
         const resp = await request(app).put(`/courses/${course.id}/enrollments/${enrollment3.id}`).send({
             sectionId: 100000
-        }).set('Cookie', userCookies).set('X-XSRF-TOKEN', userXsrfCookie)
+        }).set('Cookie', userCookies)
         expect(resp.statusCode).toEqual(400)
     })
 
     it('should respond with 400 when teacher for a different course tries to delete enrollment', async () => {
-        const resp = await request(app).delete(`/courses/${course2.id}/enrollments/${enrollment3.id}`).set('Cookie', user4Cookies).set('X-XSRF-TOKEN', user4XsrfCookie)
+        const resp = await request(app).delete(`/courses/${course2.id}/enrollments/${enrollment3.id}`).set('Cookie', user4Cookies)
         expect(resp.statusCode).toEqual(400)
     })
 
     it('should respond with 204 when deleting an enrollment', async () => {
-        const resp = await request(app).delete(`/courses/${course.id}/enrollments/${enrollment3.id}`).set('Cookie', userCookies).set('X-XSRF-TOKEN', userXsrfCookie)
+        const resp = await request(app).delete(`/courses/${course.id}/enrollments/${enrollment3.id}`).set('Cookie', userCookies)
         expect(resp.statusCode).toEqual(204)
 
-        const respEnrollments = await request(app).get(`/courses/${course.id}/enrollments`).set('Cookie', userCookies).set('X-XSRF-TOKEN', userXsrfCookie)
+        const respEnrollments = await request(app).get(`/courses/${course.id}/enrollments`).set('Cookie', userCookies)
         expect(respEnrollments.statusCode).toEqual(200)
         expect(respEnrollments.body.enrollments.length).toEqual(1)
         expect(respEnrollments.body.enrollments[0].userId).toEqual(user2.id)
@@ -197,7 +193,7 @@ describe('/enrollments and /enrollments/enrollment_id endpoints', () => {
     })
 
     it('should respond with 403 when a student tries deleting an enrollment', async () => {
-        const resp = await request(app).delete(`/courses/${course.id}/enrollments/${enrollment3.id}`).set('Cookie', user2Cookies).set('X-XSRF-TOKEN', user2XsrfCookie)
+        const resp = await request(app).delete(`/courses/${course.id}/enrollments/${enrollment3.id}`).set('Cookie', user2Cookies)
         expect(resp.statusCode).toEqual(403)
     })
     

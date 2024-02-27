@@ -23,8 +23,7 @@ describe('Test api/lecturesForSection', () => {
             sub: teacher.id
         })
         const teachSession = await generateUserSession(teacher)
-        teachXsrfCookie = teachSession.csrfToken
-        teachCookies = [`_myclassroom_session=${teacherToken}`]
+        teachCookies = [`_myclassroom_session=${teacherToken}`, `xsrf-token=${teachSession.csrfToken}`]
         
         student = await db.User.create({
             firstName: 'John',
@@ -36,8 +35,7 @@ describe('Test api/lecturesForSection', () => {
             sub: student.id
         })
         const studentSession = await generateUserSession(student)
-        studentXsrfCookie = studentSession.csrfToken
-        studentCookies = [`_myclassroom_session=${studentToken}`]
+        studentCookies = [`_myclassroom_session=${studentToken}`, `xsrf-token=${studentSession.csrfToken}`]
 
         course1 = await db.Course.create({
             name: 'Capstone Course',
@@ -77,13 +75,13 @@ describe('Test api/lecturesForSection', () => {
 
     describe('PUT /courses/:course_id/sections/:section_id/lectures/:lecture_id', () => {        
         it('should respond with 403 for updating as a student', async () => {
-            const resp = await request(app).put(`/courses/${course1.id}/sections/${section1.id}/lectures/${lecture1.id}`).set('Cookie', studentCookies).set('X-XSRF-TOKEN', studentXsrfCookie)
+            const resp = await request(app).put(`/courses/${course1.id}/sections/${section1.id}/lectures/${lecture1.id}`).set('Cookie', studentCookies)
 
             expect(resp.statusCode).toEqual(403)
         })
 
         it('should respond with 404 for updating a section id that does not exist', async () => {
-            const resp = await request(app).put(`/courses/${course1.id}/sections/-1/lectures/${lecture1.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).put(`/courses/${course1.id}/sections/-1/lectures/${lecture1.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(404)
         })
@@ -101,7 +99,7 @@ describe('Test api/lecturesForSection', () => {
                 userId: teacher.id
             })
             
-            const resp = await request(app).put(`/courses/${temp_course.id}/sections/${section1.id}/lectures/${lecture1.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).put(`/courses/${temp_course.id}/sections/${section1.id}/lectures/${lecture1.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
@@ -113,7 +111,7 @@ describe('Test api/lecturesForSection', () => {
                 description: 'temp qqq',
                 courseId: course1.id
             })            
-            const resp = await request(app).put(`/courses/${course1.id}/sections/${section1.id}/lectures/${tempLec.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).put(`/courses/${course1.id}/sections/${section1.id}/lectures/${tempLec.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
@@ -121,7 +119,7 @@ describe('Test api/lecturesForSection', () => {
         it('should respond with 200 for successfully updating published status of lectureForSection', async () => {
             const origPublishedStatus = sec1_lec1.published
 
-            let resp = await request(app).put(`/courses/${course1.id}/sections/${section1.id}/lectures/${lecture1.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            let resp = await request(app).put(`/courses/${course1.id}/sections/${section1.id}/lectures/${lecture1.id}`).set('Cookie', teachCookies)
             expect(resp.statusCode).toEqual(200)
 
             // get the updated relationship and check that the published status is opposite of the original
@@ -129,7 +127,7 @@ describe('Test api/lecturesForSection', () => {
             expect(check_relation.published).toEqual(!origPublishedStatus)
 
             // call again to revert the change
-            resp = await request(app).put(`/courses/${course1.id}/sections/${section1.id}/lectures/${lecture1.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            resp = await request(app).put(`/courses/${course1.id}/sections/${section1.id}/lectures/${lecture1.id}`).set('Cookie', teachCookies)
             expect(resp.statusCode).toEqual(200)
 
             // ensure status is back to original

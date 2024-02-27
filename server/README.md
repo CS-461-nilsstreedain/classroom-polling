@@ -1,59 +1,140 @@
 # My-Classroom-Backend
-## Setting Up
-### Dependencies
-
+## Dependencies
 - node: 16.13.0
 - npm: 9.1.2
 - mysql: 8.0.31
 
-### Configuring Local Environment
+## Cloning Repo and Installing Dependencies
+Install MySQL
+- Refer to the [MySQL Getting Started Guide](https://dev.mysql.com/doc/mysql-getting-started/en/) for installing and troubleshooting MySQL.
 
-Copy the `.env.example` file into a `.env` file
+Clone the GitHub Repository
+```
+git clone git@github.com:CS-461-nilsstreedain/classroom-polling.git
+```
 
-- Configure the database environment variables to match the database name, user, and password used when setting up the databases for development and test
-- Set `CLIENT_URL` to the front end application URL
+Navigate to the Server Directory
+```
+cd classroom-polling/server
+```
 
-### Configuring Local Database
-This process can and should be followed for instantiating both the local development and local testing database.
+Install the Application Dependencies
+```
+npm install
+```
 
-Install MySQL (and MySQL Workbench recommended): https://dev.mysql.com/doc/mysql-getting-started/en/
-Pay attention to setting of the root user password, and take note of what is necessary.
+## Configuring Local Environment
+Rename the .env.example file to setup environment configuration
+```
+mv .env.example .env
+```
 
-In the Command Line:
-1. MySQL as root user: `mysql -u root -p`
-2. Create a User: `CREATE USER 'username'@'localhost' IDENTIFIED BY 'password';`
-3. Create a Table: `CREATE DATABASE 'database_name';`
-4. Grant Permissions: `GRANT ALL PRIVILEGES ON database_name.* TO 'username'@'localhost';`
-5. Check Success: `SHOW DATABASES;`
+The server application can be configured by modifying the `/server/.env` file. The `DEV_DB_...` and `TEST_DB_...` values should match those in the database/user creation commands listed in the setup steps below. Additionally, `CLIENT_URL` should be set to the front end application URL. For basic testing, the default values can be used.
 
-Once the database has been made in mysql, using sequelize command line tools, database migrations need to be run to create the database
-- To migrate forward: `npx sequelize-cli db:migrate`
-- To migrate backward: `npx sequelize-cli db:migrate:undo` - add `:all` to undo all the migrations instead of just 1
+## Create and Migrate the Database
+Connect to the MySQL Database using the Root User
+```
+mysql -u root -p
+```
 
-### Setting Up Testing Database 
+Create the Application Database
+```
+CREATE DATABASE myclassroom;
+```
 
-- To migrate forward: `npx sequelize-cli db:migrate --env test`
+Create the Administrative Database User
+```
+CREATE USER 'admin'@'localhost' IDENTIFIED BY 'Password_1';
+```
 
-After migrations have been done, local testing data can be added to the database using sequelize seeders
-- To create: `npx sequelize-cli db:seed:all --env test`
+Grant the Administrative User Access to the Application Database
+```
+GRANT ALL PRIVILEGES ON myclassroom.* TO 'admin'@'localhost';
+```
 
-- To delete: `npx sequelize-cli db:seed:undo  --env test` - add `:all` to undo all the seeds instead of just 1
+Disconnect from the MySQL Database
+```
+exit
+```
 
+Migrate the Database using Sequelize
+```
+npx sequelize-cli db:migrate
+```
 
-If having issues, refer to the MySQL Getting Started Guide: https://dev.mysql.com/doc/mysql-getting-started/en/
+## Setup Backend Testing Environment
+Connect to the MySQL Database using the Root User
+```
+mysql -u root -p
+```
 
-If you need to reset your local dev or test databases, login to MySQL as the root user (step 1), and run `DROP DATABASE database_name;`. Then, rerun steps 3 and 4.
+Create the Test Application Database
+```
+CREATE DATABASE myclassroom_test;
+```
+
+Create the Testing Administrative Database User
+```
+CREATE USER 'testadmin'@'localhost' IDENTIFIED BY 'Password_2';
+```
+
+Grant the Testing Administrative User Access to the Test Application Database
+```
+GRANT ALL PRIVILEGES ON myclassroom_test.* TO 'testadmin'@'localhost';
+```
+
+Disconnect from the MySQL Database
+```
+exit
+```
+
+Migrate the Test Database using Sequelize
+```
+npx sequelize-cli db:migrate --env test
+```
+
+Seed the Test Database using Sequelize
+```
+npx sequelize-cli db:seed:all --env test
+```
+
+## Resetting/Rolling Back Databases
+(Append `npx` commands with `--env test` to run on the test database)
+
+Undo Database Migrations
+```
+npx sequelize-cli db:migrate:undo:all
+```
+
+Undo Test Database Seeding
+```
+npx sequelize-cli db:seed:undo:all
+```
+
+Reset Local Database
+```
+mysql -u root -p
+```
+```
+DROP DATABASE myclassroom;
+```
+or
+```
+DROP DATABASE myclassroom_test;
+```
 
 ## Starting the Application
-`npm run start`
+```
+npm run start
+```
 
 ## Testing the Application
 Testing the application is easy. The Jest testing framework is used to write tests for the system. A script has been added to the package.json file to run tests locally:
-
-`npm run test`
+```
+npm run test
+```
 
 If you run into issues, ensure you have done the following:
-
 1. Created a local test database
 2. Properly instantiated all env variables for the test environment
 

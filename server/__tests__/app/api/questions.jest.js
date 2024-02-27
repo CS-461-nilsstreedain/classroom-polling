@@ -34,8 +34,7 @@ describe('/questions endpoints', () => {
             sub: user.id
         })
         const userSession = await generateUserSession(user)
-        userXsrfCookie = userSession.csrfToken
-        userCookies = [`_myclassroom_session=${userToken}`]
+        userCookies = [`_myclassroom_session=${userToken}`, `xsrf-token=${userSession.csrfToken}`]
         
 
         user2 = await db.User.create({
@@ -48,8 +47,7 @@ describe('/questions endpoints', () => {
             sub: user2.id
         })
         const user2Session = await generateUserSession(user2)
-        user2XsrfCookie = user2Session.csrfToken
-        user2Cookies = [`_myclassroom_session=${user2Token}`]
+        user2Cookies = [`_myclassroom_session=${user2Token}`, `xsrf-token=${user2Session.csrfToken}`]
 
         course = await db.Course.create({
             name: 'Testing Things 101',
@@ -177,7 +175,7 @@ describe('/questions endpoints', () => {
     })
 
     it('should respond with 200 when a teacher gets the questions for a course', async () => {
-        const resp = await request(app).get(`/courses/${course.id}/questions?page=0&perPage=2`).set('Cookie', userCookies).set('X-XSRF-TOKEN', userXsrfCookie)
+        const resp = await request(app).get(`/courses/${course.id}/questions?page=0&perPage=2`).set('Cookie', userCookies)
         expect(resp.statusCode).toEqual(200)
         expect(resp.body.questions.length).toEqual(2)
         expect(resp.body.questions[0].courseId).toEqual(course.id)
@@ -196,7 +194,7 @@ describe('/questions endpoints', () => {
 
     // note: pages are indexed like an array, starting at 0
     it('should respond with 200 when a teacher gets page 2 of the questions for a course', async () => {
-        const resp = await request(app).get(`/courses/${course.id}/questions?page=2&perPage=2`).set('Cookie', userCookies).set('X-XSRF-TOKEN', userXsrfCookie)
+        const resp = await request(app).get(`/courses/${course.id}/questions?page=2&perPage=2`).set('Cookie', userCookies)
         expect(resp.statusCode).toEqual(200)
         expect(resp.body.questions.length).toEqual(1)
         expect(resp.body.questions[0].courseId).toEqual(course.id)
@@ -209,7 +207,7 @@ describe('/questions endpoints', () => {
     })
 
     it('should respond with 200 when a teacher gets the questions for a course filtered by a search parameter', async () => {
-        const resp = await request(app).get(`/courses/${course.id}/questions?search=3&page=0&perPage=2`).set('Cookie', userCookies).set('X-XSRF-TOKEN', userXsrfCookie)
+        const resp = await request(app).get(`/courses/${course.id}/questions?search=3&page=0&perPage=2`).set('Cookie', userCookies)
         expect(resp.statusCode).toEqual(200)
         expect(resp.body.questions.length).toEqual(2)
         expect(resp.body.questions[0].courseId).toEqual(course.id)
@@ -225,7 +223,7 @@ describe('/questions endpoints', () => {
     })
 
     it('should respond with 200 when query string parameters are left out and should get first 25 questions by default', async () => {
-        const resp = await request(app).get(`/courses/${course.id}/questions`).set('Cookie', userCookies).set('X-XSRF-TOKEN', userXsrfCookie)
+        const resp = await request(app).get(`/courses/${course.id}/questions`).set('Cookie', userCookies)
         expect(resp.statusCode).toEqual(200)
         expect(resp.body.questions.length).toEqual(5)
         expect(resp.body.links.nextPage).toEqual("")
@@ -233,12 +231,12 @@ describe('/questions endpoints', () => {
     })
 
     it('should respond with 400 when page number is out of bounds', async () => {
-        const resp = await request(app).get(`/courses/${course.id}/questions?page=3&perPage=2`).set('Cookie', userCookies).set('X-XSRF-TOKEN', userXsrfCookie)
+        const resp = await request(app).get(`/courses/${course.id}/questions?page=3&perPage=2`).set('Cookie', userCookies)
         expect(resp.statusCode).toEqual(400)
     })
 
     it('should respond with 403 when a student tries to get the questions', async () => {
-        const resp = await request(app).get(`/courses/${course.id}/questions?page=0&perPage=2`).set('Cookie', user2Cookies).set('X-XSRF-TOKEN', user2XsrfCookie)
+        const resp = await request(app).get(`/courses/${course.id}/questions?page=0&perPage=2`).set('Cookie', user2Cookies)
         expect(resp.statusCode).toEqual(403)
     })
 
@@ -260,7 +258,7 @@ describe('/questions endpoints', () => {
                 2: true,
                 3: false
             }
-        }).set('Cookie', user2Cookies).set('X-XSRF-TOKEN', user2XsrfCookie)
+        }).set('Cookie', user2Cookies)
         expect(resp.statusCode).toEqual(403)
     })
 
@@ -282,7 +280,7 @@ describe('/questions endpoints', () => {
                 2: true,
                 3: false
             }
-        }).set('Cookie', userCookies).set('X-XSRF-TOKEN', userXsrfCookie)
+        }).set('Cookie', userCookies)
         expect(resp.statusCode).toEqual(201)
         expect(resp.body.question.type).toEqual('multiple choice')
         expect(resp.body.question.stem).toEqual('What is 2 + 2?')
@@ -308,7 +306,7 @@ describe('/questions endpoints', () => {
                 2: true,
                 3: false
             }
-        }).set('Cookie', userCookies).set('X-XSRF-TOKEN', userXsrfCookie)
+        }).set('Cookie', userCookies)
         expect(resp.statusCode).toEqual(400)
     })
 
@@ -318,7 +316,7 @@ describe('/questions endpoints', () => {
             stem: 'Graph y = mx + b',
             content: { },
             answers: { }
-        }).set('Cookie', userCookies).set('X-XSRF-TOKEN', userXsrfCookie)
+        }).set('Cookie', userCookies)
         expect(resp.statusCode).toEqual(400)
     })
 

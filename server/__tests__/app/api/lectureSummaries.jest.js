@@ -56,8 +56,7 @@ describe('/lectureSummaries endpoints', () => {
             sub: user.id
         })
         const userSession = await generateUserSession(user)
-        userXsrfCookie = userSession.csrfToken
-        userCookies = [`_myclassroom_session=${userToken}`]
+        userCookies = [`_myclassroom_session=${userToken}`, `xsrf-token=${userSession.csrfToken}`]
         
 
         user2 = await db.User.create({
@@ -70,8 +69,7 @@ describe('/lectureSummaries endpoints', () => {
             sub: user2.id
         })
         const user2Session = await generateUserSession(user2)
-        user2XsrfCookie = user2Session.csrfToken
-        user2Cookies = [`_myclassroom_session=${user2Token}`]
+        user2Cookies = [`_myclassroom_session=${user2Token}`, `xsrf-token=${user2Session.csrfToken}`]
 
         user3 = await db.User.create({
             firstName: 'Tester',
@@ -83,8 +81,7 @@ describe('/lectureSummaries endpoints', () => {
             sub: user3.id
         })
         const user3Session = await generateUserSession(user3)
-        user3XsrfCookie = user3Session.csrfToken
-        user3Cookies = [`_myclassroom_session=${user3Token}`]
+        user3Cookies = [`_myclassroom_session=${user3Token}`, `xsrf-token=${user3Session.csrfToken}`]
 
         user4 = await db.User.create({
             firstName: 'Fourth',
@@ -96,8 +93,7 @@ describe('/lectureSummaries endpoints', () => {
             sub: user4.id
         })
         const user4Session = await generateUserSession(user4)
-        user4XsrfCookie = user4Session.csrfToken
-        user4Cookies = [`_myclassroom_session=${user4Token}`]
+        user4Cookies = [`_myclassroom_session=${user4Token}`, `xsrf-token=${user4Session.csrfToken}`]
 
         user5 = await db.User.create({
             firstName: 'Fifth',
@@ -109,8 +105,7 @@ describe('/lectureSummaries endpoints', () => {
             sub: user5.id
         })
         const user5Session = await generateUserSession(user5)
-        user5XsrfCookie = user5Session.csrfToken
-        user5Cookies = [`_myclassroom_session=${user5Token}`]
+        user5Cookies = [`_myclassroom_session=${user5Token}`, `xsrf-token=${user5Session.csrfToken}`]
 
         user6 = await db.User.create({
             firstName: 'Sixth',
@@ -122,8 +117,7 @@ describe('/lectureSummaries endpoints', () => {
             sub: user6.id
         })
         const user6Session = await generateUserSession(user6)
-        user6XsrfCookie = user6Session.csrfToken
-        user6Cookies = [`_myclassroom_session=${user6Token}`]
+        user6Cookies = [`_myclassroom_session=${user6Token}`, `xsrf-token=${user6Session.csrfToken}`]
 
         course = await db.Course.create({
             name: 'Testing Things 101',
@@ -280,7 +274,7 @@ describe('/lectureSummaries endpoints', () => {
     })
 
     it('should respond with 200 when a teacher gets responses to questions from a lecture', async () => {
-        const resp = await request(app).get(`/courses/${course.id}/sections/${section.id}/lectures/${lecture.id}/responses`).set('Cookie', userCookies).set('X-XSRF-TOKEN', userXsrfCookie)
+        const resp = await request(app).get(`/courses/${course.id}/sections/${section.id}/lectures/${lecture.id}/responses`).set('Cookie', userCookies)
         expect(resp.statusCode).toEqual(200)
         expect(resp.body[0].numberOfResponses).toEqual(3)
         expect(resp.body[0].question.stem).toEqual(question.stem)
@@ -290,7 +284,7 @@ describe('/lectureSummaries endpoints', () => {
     })
 
     it('should respond with 200 when a student gets their responses to questions in a lecture', async () => {
-        const resp = await request(app).get(`/courses/${course.id}/sections/${section.id}/lectures/${lecture.id}/responses`).set('Cookie', user2Cookies).set('X-XSRF-TOKEN', user2XsrfCookie)
+        const resp = await request(app).get(`/courses/${course.id}/sections/${section.id}/lectures/${lecture.id}/responses`).set('Cookie', user2Cookies)
         expect(resp.statusCode).toEqual(200)
         expect(resp.body[0].question.stem).toEqual(question.stem)
         expect(resp.body[0].response.score).toEqual(1)
@@ -299,12 +293,12 @@ describe('/lectureSummaries endpoints', () => {
     })
 
     it('should respond with 403 when a student tries to get responses for a section they are not enrolled in', async () => {
-        const resp = await request(app).get(`/courses/${course.id}/sections/${section.id}/lectures/${lecture.id}/responses`).set('Cookie', user5Cookies).set('X-XSRF-TOKEN', user5XsrfCookie)
+        const resp = await request(app).get(`/courses/${course.id}/sections/${section.id}/lectures/${lecture.id}/responses`).set('Cookie', user5Cookies)
         expect(resp.statusCode).toEqual(403)
     })
 
     it('should respond with 403 when a user tries to get responses for a course they are not enrolled in', async () => {
-        const resp = await request(app).get(`/courses/${course.id}/sections/${section.id}/lectures/${lecture.id}/responses`).set('Cookie', user5Cookies).set('X-XSRF-TOKEN', user5XsrfCookie)
+        const resp = await request(app).get(`/courses/${course.id}/sections/${section.id}/lectures/${lecture.id}/responses`).set('Cookie', user5Cookies)
         expect(resp.statusCode).toEqual(403)
     })
 

@@ -25,8 +25,7 @@ describe('Test api/questionsInLecture', () => {
             sub: teacher.id
         })
         const teachSession = await generateUserSession(teacher)
-        teachXsrfCookie = teachSession.csrfToken
-        teachCookies = [`_myclassroom_session=${teacherToken}`]
+        teachCookies = [`_myclassroom_session=${teacherToken}`, `xsrf-token=${teachSession.csrfToken}`]
         
         student = await db.User.create({
             firstName: 'John',
@@ -38,8 +37,7 @@ describe('Test api/questionsInLecture', () => {
             sub: student.id
         })
         const studentSession = await generateUserSession(student)
-        studentXsrfCookie = studentSession.csrfToken
-        studentCookies = [`_myclassroom_session=${studentToken}`]
+        studentCookies = [`_myclassroom_session=${studentToken}`, `xsrf-token=${studentSession.csrfToken}`]
 
         course1 = await db.Course.create({
             name: 'Capstone Course',
@@ -92,7 +90,7 @@ describe('Test api/questionsInLecture', () => {
 
     describe('GET /courses/:course_id/lectures/:lecture_id/questions/:question_id', () => {        
         it('should respond with 403 for getting a question as a student', async () => {
-            const resp = await request(app).get(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question1.id}`).set('Cookie', studentCookies).set('X-XSRF-TOKEN', studentXsrfCookie)
+            const resp = await request(app).get(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question1.id}`).set('Cookie', studentCookies)
 
             expect(resp.statusCode).toEqual(403)
         })
@@ -117,7 +115,7 @@ describe('Test api/questionsInLecture', () => {
             })
 
             // call GET using course1 and lecNotInCourse
-            const resp = await request(app).get(`/courses/${course1.id}/lectures/${lecNotInCourse.id}/questions/${question1.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).get(`/courses/${course1.id}/lectures/${lecNotInCourse.id}/questions/${question1.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
@@ -128,7 +126,7 @@ describe('Test api/questionsInLecture', () => {
                 type: "multiple choice",
                 stem: "was this in lecture",
             })            
-            const resp = await request(app).get(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${qsNotInLec.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).get(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${qsNotInLec.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
@@ -151,14 +149,14 @@ describe('Test api/questionsInLecture', () => {
                 published: true
             })
 
-            const resp = await request(app).get(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${qsNotInCourse.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).get(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${qsNotInCourse.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(404)
         })
 
         it('should respond with 200 for successfully getting a question', async () => {        
 
-            const resp = await request(app).get(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question1.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).get(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question1.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(200)
             expect(resp.body.id).toEqual(question1.id)
@@ -174,7 +172,7 @@ describe('Test api/questionsInLecture', () => {
     // note: only different type of test is response 200 (all other validation testing is the same here)
     describe('PUT /courses/:course_id/lectures/:lecture_id/questions/:question_id', () => {        
         it('should respond with 403 for updating a question as a student', async () => {
-            const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question1.id}`).set('Cookie', studentCookies).set('X-XSRF-TOKEN', studentXsrfCookie)
+            const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question1.id}`).set('Cookie', studentCookies)
 
             expect(resp.statusCode).toEqual(403)
         })
@@ -199,7 +197,7 @@ describe('Test api/questionsInLecture', () => {
             })
 
             // call GET using course1 and lecNotInCourse
-            const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecNotInCourse.id}/questions/${question1.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecNotInCourse.id}/questions/${question1.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
@@ -210,7 +208,7 @@ describe('Test api/questionsInLecture', () => {
                 type: "multiple choice",
                 stem: "was this in lecture",
             })            
-            const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${qsNotInLec.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${qsNotInLec.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
@@ -233,7 +231,7 @@ describe('Test api/questionsInLecture', () => {
                 published: true
             })
 
-            const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${qsNotInCourse.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${qsNotInCourse.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(404)
         })
@@ -241,7 +239,7 @@ describe('Test api/questionsInLecture', () => {
         it('should respond with 200 for successfully updating the published status of a question', async () => {        
             const initialPublishedStatus = q1_lec1.published
             
-            let resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question1.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            let resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question1.id}`).set('Cookie', teachCookies)
             expect(resp.statusCode).toEqual(200)
 
             // get from database to see if it was updated
@@ -249,7 +247,7 @@ describe('Test api/questionsInLecture', () => {
             expect(check_relation.published).toEqual(!(initialPublishedStatus)) // should be opposite of initial published status
 
             // call again to ensure the published status goes back to original
-            resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question1.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question1.id}`).set('Cookie', teachCookies)
             expect(resp.statusCode).toEqual(200)
 
             check_relation = await db.QuestionInLecture.findByPk(q1_lec1.id)
@@ -259,7 +257,7 @@ describe('Test api/questionsInLecture', () => {
 
     describe('POST /courses/:course_id/lectures/:lecture_id/questions/:question_id', () => {        
         it('should respond with 201 for linking question to lecture', async () => {                    
-            let resp = await request(app).post(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question2.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            let resp = await request(app).post(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question2.id}`).set('Cookie', teachCookies)
             
             expect(resp.statusCode).toEqual(201)
             expect(resp.body.questionId).toEqual(question2.id)
@@ -267,7 +265,7 @@ describe('Test api/questionsInLecture', () => {
         })
 
         it('should respond with 403 for linking a question as a student', async () => {
-            let resp = await request(app).post(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question2.id}`).set('Cookie', studentCookies).set('X-XSRF-TOKEN', studentXsrfCookie)
+            let resp = await request(app).post(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question2.id}`).set('Cookie', studentCookies)
 
             expect(resp.statusCode).toEqual(403)
         })
@@ -292,7 +290,7 @@ describe('Test api/questionsInLecture', () => {
             })
 
             // call GET using course1 and lecNotInCourse
-            const resp = await request(app).post(`/courses/${course1.id}/lectures/${lecNotInCourse.id}/questions/${question1.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).post(`/courses/${course1.id}/lectures/${lecNotInCourse.id}/questions/${question1.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
@@ -309,7 +307,7 @@ describe('Test api/questionsInLecture', () => {
 
             let resp = await request(app).post(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question2.id}`).send({
                 published: true
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            }).set('Cookie', teachCookies)
             
             expect(resp.statusCode).toEqual(201)
             expect(resp.body.questionId).toEqual(question2.id)
@@ -321,7 +319,7 @@ describe('Test api/questionsInLecture', () => {
     describe('PUT /courses/:course_id/lectures/:lecture_id/questions', () => {   
         it('should respond with 400 if not providing both question IDs in body', async () => {
             const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions`).send({
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            }).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
@@ -329,7 +327,7 @@ describe('Test api/questionsInLecture', () => {
         it('should respond with 400 if only providing one question ID in body', async () => {
             const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions`).send({
                 questionIdOne: 1
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            }).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
@@ -338,7 +336,7 @@ describe('Test api/questionsInLecture', () => {
             const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions`).send({
                 questionIdOne: 1,
                 questionIdTwo: 2
-            }).set('Cookie', studentCookies).set('X-XSRF-TOKEN', studentXsrfCookie)
+            }).set('Cookie', studentCookies)
 
             expect(resp.statusCode).toEqual(403)
         })
@@ -366,7 +364,7 @@ describe('Test api/questionsInLecture', () => {
             const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecNotInCourse.id}/questions`).send({
                 questionIdOne: 1,
                 questionIdTwo: 2
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            }).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
@@ -380,7 +378,7 @@ describe('Test api/questionsInLecture', () => {
             const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions`).send({
                 questionIdOne: question1.id,    // this question is in lecture1
                 questionIdTwo: qsNotInLec.id    // not in lecture1
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            }).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
@@ -402,7 +400,7 @@ describe('Test api/questionsInLecture', () => {
             const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions`).send({
                 questionIdOne: question1.id,
                 questionIdTwo: qsNotInCourse.id     // not in course1
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            }).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(404)
         })
@@ -427,7 +425,7 @@ describe('Test api/questionsInLecture', () => {
             const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions`).send({
                 questionIdOne: question1.id,
                 questionIdTwo: tempQ.id
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            }).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(200)
 
@@ -442,7 +440,7 @@ describe('Test api/questionsInLecture', () => {
 
     describe('DELETE /courses/:course_id/lectures/:lecture_id/questions/:question_id', () => {   
         it('should respond with 403 for deleting a question as a student', async () => {
-            const resp = await request(app).delete(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question1.id}`).set('Cookie', studentCookies).set('X-XSRF-TOKEN', studentXsrfCookie)
+            const resp = await request(app).delete(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question1.id}`).set('Cookie', studentCookies)
 
             expect(resp.statusCode).toEqual(403)
         })
@@ -467,7 +465,7 @@ describe('Test api/questionsInLecture', () => {
             })
 
             // call DELETE using course1 and lecNotInCourse
-            const resp = await request(app).delete(`/courses/${course1.id}/lectures/${lecNotInCourse.id}/questions/${question1.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).delete(`/courses/${course1.id}/lectures/${lecNotInCourse.id}/questions/${question1.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
@@ -478,7 +476,7 @@ describe('Test api/questionsInLecture', () => {
                 type: "multiple choice",
                 stem: "was this in lecture",
             })
-            const resp = await request(app).delete(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${qsNotInLec.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).delete(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${qsNotInLec.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
@@ -497,7 +495,7 @@ describe('Test api/questionsInLecture', () => {
                 published: true
             })
 
-            const resp = await request(app).delete(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${qsNotInCourse.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).delete(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${qsNotInCourse.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(404)
         })
@@ -507,7 +505,7 @@ describe('Test api/questionsInLecture', () => {
             const preDelete = await db.QuestionInLecture.findByPk(q1_lec1.id)
             expect(preDelete).toBeTruthy()
             
-            const resp = await request(app).delete(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question1.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).delete(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${question1.id}`).set('Cookie', teachCookies)
             expect(resp.statusCode).toEqual(204)
 
             // same call as before but now question1 shouldn't be in lecture1

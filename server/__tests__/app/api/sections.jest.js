@@ -22,8 +22,7 @@ describe('api/sections tests', () => {
             sub: teacher.id
         })
         const teachSession = await generateUserSession(teacher)
-        teachXsrfCookie = teachSession.csrfToken
-        teachCookies = [`_myclassroom_session=${teacherToken}`]
+        teachCookies = [`_myclassroom_session=${teacherToken}`, `xsrf-token=${teachSession.csrfToken}`]
         
         student = await db.User.create({
             firstName: 'John',
@@ -35,8 +34,7 @@ describe('api/sections tests', () => {
             sub: student.id
         })
         const studentSession = await generateUserSession(student)
-        studentXsrfCookie = studentSession.csrfToken
-        studentCookies = [`_myclassroom_session=${studentToken}`]
+        studentCookies = [`_myclassroom_session=${studentToken}`, `xsrf-token=${studentSession.csrfToken}`]
 
         course1 = await db.Course.create({
             name: 'Capstone Course',
@@ -66,14 +64,14 @@ describe('api/sections tests', () => {
         it('should respond with 400 for creating a section with already existing number', async () => {
             const resp = await request(app).post(`/courses/${course1.id}/sections`).send({
                 number: 1
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            }).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
 
         it('should respond with 400 for creating a section with missing value', async () => {
             const resp = await request(app).post(`/courses/${course1.id}/sections`).send({
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            }).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
@@ -81,7 +79,7 @@ describe('api/sections tests', () => {
         it('should respond with 403 for creating a section as a student', async () => {
             const resp = await request(app).post(`/courses/${course1.id}/sections`).send({
                 number: 2
-            }).set('Cookie', studentCookies).set('X-XSRF-TOKEN', studentXsrfCookie)
+            }).set('Cookie', studentCookies)
 
             expect(resp.statusCode).toEqual(403)
         })
@@ -89,7 +87,7 @@ describe('api/sections tests', () => {
         it('should respond with 201 for successfully creating section', async () => {
             const resp = await request(app).post(`/courses/${course1.id}/sections`).send({
                 number: 2
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            }).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(201)
             expect(resp.body.section.courseId).toEqual(course1.id)
@@ -115,13 +113,13 @@ describe('api/sections tests', () => {
         })
     
         it('should respond with 403 for getting sections as a non teacher', async () => {
-            const resp = await request(app).get(`/courses/${courseToGetFrom.id}/sections`).set('Cookie', studentCookies).set('X-XSRF-TOKEN', studentXsrfCookie)
+            const resp = await request(app).get(`/courses/${courseToGetFrom.id}/sections`).set('Cookie', studentCookies)
 
             expect(resp.statusCode).toEqual(403)
         })
 
         it('should respond with 204 for a course with no sections', async () => {
-            const resp = await request(app).get(`/courses/${courseToGetFrom.id}/sections`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).get(`/courses/${courseToGetFrom.id}/sections`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(204)
         })
@@ -133,7 +131,7 @@ describe('api/sections tests', () => {
                 courseId: courseToGetFrom.id
             })
             
-            const resp = await request(app).get(`/courses/${courseToGetFrom.id}/sections`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).get(`/courses/${courseToGetFrom.id}/sections`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(200)
             expect(resp.body.length).toEqual(1)
@@ -150,13 +148,13 @@ describe('api/sections tests', () => {
 
     describe('GET /courses/:course_id/sections/:section_id', () => {
         it('should respond with 404 for getting a section with bad section id', async () => {
-            const resp = await request(app).get(`/courses/${course1.id}/sections/${-1}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).get(`/courses/${course1.id}/sections/${-1}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(404)
         })
 
         it('should respond with 403 for getting a section as a student', async () => {
-            const resp = await request(app).get(`/courses/${course1.id}/sections/${section1.id}`).set('Cookie', studentCookies).set('X-XSRF-TOKEN', studentXsrfCookie)
+            const resp = await request(app).get(`/courses/${course1.id}/sections/${section1.id}`).set('Cookie', studentCookies)
 
             expect(resp.statusCode).toEqual(403)
         })
@@ -174,7 +172,7 @@ describe('api/sections tests', () => {
                 userId: teacher.id
             })
 
-            const resp = await request(app).get(`/courses/${temp_course.id}/sections/${section1.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).get(`/courses/${temp_course.id}/sections/${section1.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(400)
         })
@@ -193,7 +191,7 @@ describe('api/sections tests', () => {
                 sectionId: section1.id,
             })
             
-            const resp = await request(app).get(`/courses/${course1.id}/sections/${section1.id}`).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            const resp = await request(app).get(`/courses/${course1.id}/sections/${section1.id}`).set('Cookie', teachCookies)
             
             expect(resp.statusCode).toEqual(200)
             expect(resp.body.section.id).toEqual(section1.id)
@@ -219,7 +217,7 @@ describe('api/sections tests', () => {
         it('should respond with 400 for updating section with conflicting number', async () => {
             const resp = await request(app).put(`/courses/${course1.id}/sections/${sectionToUpdate.id}`).send({
                 number: 1
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)  
+            }).set('Cookie', teachCookies)
             
             expect(resp.statusCode).toEqual(400)
         })
@@ -227,14 +225,14 @@ describe('api/sections tests', () => {
         it('should respond with 400 for updating section with empty number', async () => {
             const resp = await request(app).put(`/courses/${course1.id}/sections/${sectionToUpdate.id}`).send({
                 number: ""
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)  
+            }).set('Cookie', teachCookies)
             
             expect(resp.statusCode).toEqual(400)
         })
 
         it('should respond with 400 for updating section with no number', async () => {
             const resp = await request(app).put(`/courses/${course1.id}/sections/${sectionToUpdate.id}`).send({
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)  
+            }).set('Cookie', teachCookies)
             
             expect(resp.statusCode).toEqual(400)
         })
@@ -242,7 +240,7 @@ describe('api/sections tests', () => {
         it('should respond with 404 for updating section invalid id', async () => {
             const resp = await request(app).put(`/courses/${course1.id}/sections/${-1}`).send({
                 number: 4
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)  
+            }).set('Cookie', teachCookies)
             
             expect(resp.statusCode).toEqual(404)
         })
@@ -250,7 +248,7 @@ describe('api/sections tests', () => {
         it('should respond with 403 for updating section as a student', async () => {
             const resp = await request(app).put(`/courses/${course1.id}/sections/${sectionToUpdate.id}`).send({
                 number: 4
-            }).set('Cookie', studentCookies).set('X-XSRF-TOKEN', studentXsrfCookie)  
+            }).set('Cookie', studentCookies)
             
             expect(resp.statusCode).toEqual(403)
         })
@@ -270,7 +268,7 @@ describe('api/sections tests', () => {
 
             const resp = await request(app).put(`/courses/${temp_course.id}/sections/${sectionToUpdate.id}`).send({
                 number: 4
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)
+            }).set('Cookie', teachCookies)
             
             expect(resp.statusCode).toEqual(400)
         })
@@ -278,7 +276,7 @@ describe('api/sections tests', () => {
         it('should respond with 200 for successfully updating section', async () => {       
             const resp = await request(app).put(`/courses/${course1.id}/sections/${sectionToUpdate.id}`).send({
                 number: 4
-            }).set('Cookie', teachCookies).set('X-XSRF-TOKEN', teachXsrfCookie)  
+            }).set('Cookie', teachCookies)  
 
             expect(resp.statusCode).toEqual(200)
             

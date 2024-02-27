@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router';
 
 //NavBar for the whole website.
 function TopNavbar(props) {
+    
     return (
             <div className='navbarMain' expand="lg">
                 <div className='navbarLeftContainer'>
@@ -26,10 +27,16 @@ function TopNavbar(props) {
 }
 
 function UserMenu(props) {
-
-    async function logoutUser(){
-        // TODO: Add error handling?
-        const response = await apiUtil("get", `/users/logout`)
+    const navigate = useNavigate();
+    async function logoutUser() { 
+        try {
+            const response = await apiUtil("get", `/users/logout`);
+            if (response.status === 200) {
+                location.reload();
+            }
+        } catch (error) {
+            console.error("Error occurred during logout:", error);
+        }
     }
 
     return <>{ 
