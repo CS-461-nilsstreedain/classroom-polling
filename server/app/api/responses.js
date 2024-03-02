@@ -7,6 +7,7 @@ const questionService = require("../services/question_service");
 const responseService = require("../services/response_service");
 
 // student is answering a question
+// Path is /courses/:course_id/lectures/:lecture_id/questions/:question_id/responses
 router.post("/", requireAuthentication, async function (req, res, next) {
 	const user = await db.User.findByPk(req.payload.sub); // find user by ID, which is stored in sub
 	const courseId = parseInt(req.params["course_id"]);
@@ -87,6 +88,7 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 
 // this route isn't even implemented in the frontend
 // student is resubmitting their answer to a question
+// Path is /courses/:course_id/lectures/:lecture_id/questions/:question_id/responses/:response_id
 router.put(
 	"/:response_id",
 	requireAuthentication,
@@ -96,6 +98,18 @@ router.put(
 		const courseId = parseInt(req.params["course_id"]);
 		const lectureId = parseInt(req.params["lecture_id"]);
 		const questionId = parseInt(req.params["question_id"]);
+		if (!user) {
+			return res.status(403).send({
+				error: `Only a student in the course can submit a response to the question`,
+			});
+		}
+		// validate request parameters
+		if (!responseId || !courseId || !lectureId || !questionId) {
+			return res.status(400).send({
+				error: `Invalid request parameters`,
+			});
+		}
+
 		// check to make sure the user is a student for the specified course
 		const enrollmentStudent = await db.Enrollment.findOne({
 			where: { role: "student", userId: user.id },
@@ -111,16 +125,9 @@ router.put(
 		// check to make sure response exists and belongs to the user making the request
 		// this is timing out because it's not finding the response
 		// rewrite the query to set a timeout if a response is not found
-		const oldResponse = await db.Response.findOne({
-			where: { id: responseId },
-			include: [
-				{
-					model: db.Enrollment,
-					required: true,
-					where: { userId: user.id },
-				},
-			],
-		});
+		console.log(`responseId: ${responseId} user.id: ${user.id}`);
+		// write a query to find the response
+		const oldResponse = await db.Response.findByPk(responseId);
 		// SELECT * FROM Responses WHERE id = ${responseId} AND Enrollment.userId = ${user.id}, { model: db.Response };
 
 		if (enrollmentStudent) {
