@@ -88,7 +88,7 @@ function AddCourse(props){
                         size="large" 
                         onChange={(e) => setPublished(e.target.value)}/>
                 </Form.Group>
-                <div class="create-btns">
+                <div className="create-btns">
                     <Link to={`/`}>
                         <Button variant="secondary" id="create-cancel">
                             Cancel

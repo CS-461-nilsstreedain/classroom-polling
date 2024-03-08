@@ -1,4 +1,4 @@
-# Open-Source Classroom Polling Software (2023-24)
+# Open-Source Classroom Polling Software
 This project will develop a free, open-source, classroom polling website. Once developed, the project will be used in OSU classrooms and shared with instructors around the world. This project will include front end and back end web development, a Canvas / LMS interface, and responsive user interface development for live polling and advanced question formats on desktop, mobile, and other devices. Stretch goals include an intelligent grouping algorithm to pair students based on answers, tracking of students to give feedback to instructors, and an in-class social network for just-in-time Learning Assistant interventions.
 
 ## Objectives

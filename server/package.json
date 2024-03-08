@@ -1,9 +1,9 @@
 {
 	"dependencies": {
 		"@trycourier/courier": "^5.7.0",
-		"bcrypt": "^5.1.0",
+		"bcrypt": "^5.1.1",
 		"body-parser": "^1.20.2",
-		"caniuse-lite": "^1.0.30001565",
+		"caniuse-lite": "^1.0.30001596",
 		"cookie": "^0.6.0",
 		"cookie-parser": "^1.4.6",
 		"cors": "^2.8.5",
@@ -13,9 +13,9 @@
 		"jsonwebtoken": "^9.0.0",
 		"moment": "^2.29.4",
 		"morgan": "^1.10.0",
-		"mysql2": "^2.3.3",
+		"mysql2": "^3.9.2",
 		"npx": "^10.2.2",
-		"sequelize": "^6.35.0",
+		"sequelize": "^6.37.1",
 		"sequelize-cli": "^6.5.2",
 		"supertest": "^6.3.3",
 		"winston": "^3.11.0",
@@ -27,7 +27,7 @@
 	"main": "app.js",
 	"devDependencies": {
 		"dotenv": "^16.3.1",
-		"nodemon": "^2.0.20"
+		"nodemon": "^3.1.0"
 	},
 	"scripts": {
 		"test": "NODE_ENV=test jest --runInBand",

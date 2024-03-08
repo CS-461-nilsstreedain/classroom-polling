@@ -89,19 +89,15 @@ const requireAuthentication = async (req, res, next) => {
  */
 const validateCsrfToken = async (token, userId) => {
     // Get session from XSRF token and userId
-    const session = await db.Session.findOne({ where: { csrfToken: token } });
+    const session = await db.Session.findOne({ where: { csrfToken: token, userId: userId } });
     
     // If session does not exist, fail token
     if (!session)
-        throw new Error("xsrf token missing");
+        throw new Error("Invalid CSRF token or session.");
     
     // If session expired, fail token
     if (session.checkIfExpired())
-        throw new Error("user session expired");
-    
-    // If session userId missmatch, fail token
-    if (session.userId != userId)
-        throw new Error("user/session missmatch");
+        throw new Error("Session expired.");
     
     // Otherwise return valid session
     return session;
