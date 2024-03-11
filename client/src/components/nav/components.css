@@ -117,9 +117,15 @@ body{
 }
 
 .navButtons{
+    box-sizing: content-box;
+
     display: flex;
     justify-content: center;
     width: 20%;
+}
+
+.rightButtons.navButtons{
+    width: 220px;
 }
 
 .navButtons a{
@@ -137,8 +143,26 @@ body{
     margin: 0px 5px;
 }
 
+
 .navButtons a:hover{
     text-decoration: underline;
+}
+
+.navButtons.rightButtons a{
+    margin: 0px;
+}
+
+.rightButtons .navLogin{
+    border-color: transparent;
+    font-weight: bold;
+}
+
+.rightButtons .navSignup{
+    border-color: black;
+    background-color: black;
+
+    font-weight: bold;
+    color: white;
 }
 
 /* Dropdown in Navbar */

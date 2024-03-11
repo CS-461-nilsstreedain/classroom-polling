@@ -20,21 +20,41 @@ function TopNavbar(props) {
 
                 {/*TODO: Finish obvious improvements, add functionality to read name of user*/}
                 <div className="navbarCenterContainer">
-                {console.log(props.inCourse)}
                     {props.loggedIn ?
                         <LoggedInButtons />
                         :
-                        <p className='navbarItem smallText'> placeholder not logged in </p>}
+                        <p className='navbarItem smallText'> placeholder not logged in </p>
+                    }
 
                 </div>
                 <div className="navbarRightContainer">
-                    <div className="navbarItem dropdown">
-                        <FontAwesomeIcon className="dropdownIcon" icon={faUser}/>
-                        <UserMenu loggedIn={props.loggedIn}/>
-                    </div>
+                    {props.loggedIn ?
+                        <LoggedInRight loggedIn={props.loggedIn} />
+                        :
+                        <LoggedOutRight />
+                    }
+
                 </div>
             </div>
     );
+}
+
+function LoggedOutRight(){
+    return(
+        <span className="navButtons rightButtons">
+            <a href="/login" className="navLogin"> Log In </a>
+            <a href="/create" className="navSignup"> Get Started </a>
+        </span>
+    )
+}
+
+function LoggedInRight(props){
+    return(
+        <div className="navbarItem dropdown">
+            <FontAwesomeIcon className="dropdownIcon" icon={faUser}/>
+            <UserMenu loggedIn={props.loggedIn}/>
+        </div>
+    )
 }
 
 function LoggedInButtons(){
