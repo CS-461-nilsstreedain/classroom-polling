@@ -1,0 +1,104 @@
+/* Home Page CSS */
+
+#home{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/*homeBox: Containers for home page centered with rows of contents*/
+.section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+}
+
+.infoContainer{
+    width: 100%;
+}
+
+.homeHeader{
+    font-weight: bold;
+    font-size: 28px;
+    margin-bottom: 0.5rem;
+}
+
+
+.homeText{
+    font-size: 16px;
+}
+
+.infoBox{
+/*    position: relative;*/
+
+    background-color: #D2DFD3;
+    width: 352px;
+    height: 225px;
+    border-radius: 24px;
+    margin: 64px 10%;
+}
+
+.leftBox{
+    align-self: flex-start;
+}
+
+.rightBox{
+    align-self: flex-end;
+}
+
+.infoText{
+    width: 180px;
+    color: black;
+    font-weight: 500;
+    text-align: center;
+    line-height: 20px;
+    position: relative;
+
+}
+
+/* Placements styled individually as it allows for design variety */
+#img1{
+    width: 128px;
+    margin: 12px;
+}
+
+#text1{
+
+    left: 116px;
+    bottom: 30px;
+}
+
+#img2{
+    width: 128px;
+    margin: 30px 20px;
+}
+
+#text2{
+
+    left: 154px;
+    bottom: 110px;
+}
+
+.getStarted{
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 32px;
+
+    margin-top: 8vh;
+
+    border: none;
+    border-radius: 5px;
+
+    width: 256px;
+
+    color: white;
+
+    /* Icon attached to button using background image*/
+    padding: 5px 48px 5px 16px;
+    background: black url(../../public/arrowBox.png);
+    background-position: 200px 14px;
+    background-repeat: no-repeat;
+    background-size: 30px;
+}
