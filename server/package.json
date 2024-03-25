@@ -15,7 +15,7 @@
 		"sequelize": "^6.37.1",
 		"sequelize-cli": "^6.5.2",
 		"supertest": "^6.3.4",
-		"winston": "^3.12.0",
+		"winston": "^3.13.0",
 		"winston-daily-rotate-file": "^5.0.0"
 	},
 	"name": "myclassroom",
